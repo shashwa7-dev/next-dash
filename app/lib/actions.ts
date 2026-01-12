@@ -4,6 +4,7 @@ import z from "zod";
 import postgres from "postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { signOut } from "@/auth";
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 export type State = {
   errors?: {
@@ -61,7 +62,11 @@ export async function createInvoice(prevState: State, formData: FormData) {
   revalidatePath("/dashboard/invoices"); //revalidate path to fetch latest copy of invoice page after insert
   redirect("/dashboard/invoices");
 }
-export async function updateInvoice(id: string, prevState: State, formData: FormData) {
+export async function updateInvoice(
+  id: string,
+  prevState: State,
+  formData: FormData
+) {
   const validatedFields = UpdateInvoice.safeParse({
     customerId: formData.get("customerId"),
     amount: formData.get("amount"),
@@ -104,4 +109,8 @@ export async function deleteInvoice(id: string) {
     };
   }
   revalidatePath("/dashboard/invoices");
+}
+
+export async function logout() {
+  await signOut({ redirectTo: "/login" });
 }
